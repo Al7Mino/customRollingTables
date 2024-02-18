@@ -1,0 +1,6 @@
+{
+  "appTitle": "Rolling Tables",
+  "@appTitle": {
+    "description": "Le titre de l'application"
+  }
+}
