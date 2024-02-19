@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rolling_tables/src/controllers/data_controller.dart';
 import 'package:rolling_tables/src/views/context_list_view.dart';
+import 'package:rolling_tables/src/views/context_view.dart';
+import 'package:rolling_tables/src/views/table_view.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -13,9 +15,11 @@ class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
     required this.settingsController,
+    required this.dataController,
   });
 
   final SettingsController settingsController;
+  final DataController dataController;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class MyApp extends StatelessWidget {
     return ListenableBuilder(
       listenable: settingsController,
       builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
+        return MaterialApp.router(
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
           // returns to the app after it has been killed while running in the
@@ -62,24 +66,40 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
 
-          // Define a function to handle named routes in order to support
-          // Flutter web url navigation and deep linking.
-          onGenerateRoute: (RouteSettings routeSettings) {
-            return MaterialPageRoute<void>(
-              settings: routeSettings,
-              builder: (BuildContext context) {
-                switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
-                  case ContextListView.routeName:
-                  default:
-                    return const ContextListView();
-                }
-              },
-            );
-          },
+          routerConfig: GoRouter(
+            routes: [
+              GoRoute(
+                path: '/',
+                builder: (context, state) => ContextListView(
+                  dataController: dataController,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'context/:contextName',
+                    builder: (context, state) => ContextView(
+                      contextName: state.pathParameters['contextName'],
+                      dataController: dataController,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: ':tableName',
+                        builder: (context, state) => TableView(
+                          contextName: state.pathParameters['contextName'],
+                          tableName: state.pathParameters['tableName'],
+                          dataController: dataController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: '/settings',
+                builder: (context, state) =>
+                    SettingsView(controller: settingsController),
+              ),
+            ],
+          ),
         );
       },
     );
