@@ -126,43 +126,61 @@ class _TableViewState extends State<TableView> {
               ),
             ],
           ),
-          body: ListView.builder(
-            restorationId: 'contextView',
-            itemCount: tableModel.entries.length,
-            itemBuilder: (BuildContext context, int index) {
-              final item = tableModel.entries[index];
-
-              return ListTile(
-                tileColor: index.isOdd ? oddItemColor : null,
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(item.name),
-                    Text(item.score.toString()),
-                  ],
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
                 ),
-                trailing: SizedBox(
-                  width: 100,
+                child: Text('${tableModel.entries.length} entrées'),
+              ),
+              Expanded(
+                child: SizedBox(
                   height: 100,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(CustomIcons.dice),
-                        onPressed: () {
-                          onRoll(item);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {
-                          onRemoveEntry(item);
-                        },
-                      ),
-                    ],
+                  child: ListView.builder(
+                    restorationId: 'contextView',
+                    itemCount: tableModel.entries.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final item = tableModel.entries[index];
+
+                      return ListTile(
+                        tileColor: index.isOdd ? oddItemColor : null,
+                        visualDensity: const VisualDensity(vertical: -4),
+                        title: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(item.name),
+                            Text(item.score.toString()),
+                          ],
+                        ),
+                        trailing: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(CustomIcons.dice),
+                                onPressed: () {
+                                  onRoll(item);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () {
+                                  onRemoveEntry(item);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
-              );
-            },
+              ),
+            ],
           ),
         );
       },
