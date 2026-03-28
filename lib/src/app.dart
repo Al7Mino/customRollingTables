@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rolling_tables/src/controllers/data_controller.dart';
-import 'package:rolling_tables/src/views/context_list_view.dart';
-import 'package:rolling_tables/src/views/context_view.dart';
+import 'package:rolling_tables/src/views/home_view.dart';
 import 'package:rolling_tables/src/views/table_view.dart';
 
-import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
+import 'controllers/option_item_controller.dart';
+import 'controllers/table_controller.dart';
+import 'localization/app_localizations.dart';
+import 'controllers/settings_controller.dart';
+import 'views/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
   const MyApp({
     super.key,
     required this.settingsController,
-    required this.dataController,
+    required this.tableController,
+    required this.optionItemController,
   });
 
   final SettingsController settingsController;
-  final DataController dataController;
+  final TableController tableController;
+  final OptionItemController optionItemController;
 
   @override
   Widget build(BuildContext context) {
@@ -70,26 +72,16 @@ class MyApp extends StatelessWidget {
             routes: [
               GoRoute(
                 path: '/',
-                builder: (context, state) => ContextListView(
-                  dataController: dataController,
-                ),
+                builder: (context, state) =>
+                    HomeView(tableController: tableController),
                 routes: [
                   GoRoute(
-                    path: 'context/:contextName',
-                    builder: (context, state) => ContextView(
-                      contextName: state.pathParameters['contextName'],
-                      dataController: dataController,
+                    path: '/tables/:tableName',
+                    builder: (context, state) => TableView(
+                      tableName: state.pathParameters['tableName'],
+                      tableController: tableController,
+                      optionItemController: optionItemController,
                     ),
-                    routes: [
-                      GoRoute(
-                        path: ':tableName',
-                        builder: (context, state) => TableView(
-                          contextName: state.pathParameters['contextName'],
-                          tableName: state.pathParameters['tableName'],
-                          dataController: dataController,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),

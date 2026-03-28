@@ -1,39 +1,41 @@
-import 'dart:collection';
-
-import 'package:flutter/material.dart';
-import 'package:rolling_tables/src/models/table_entry_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'table_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class TableModel {
-  TableModel(this.name, [this._entries = const []]) {
-    if (_entries.isEmpty) {
-      _entries = List.empty(growable: true);
-    }
-  }
-
-  final String _id = UniqueKey().toString();
+  int? id;
 
   /// Table name
   String name = '';
 
-  /// List of entries
-  @JsonKey(includeFromJson: true, includeToJson: true)
-  List<TableEntryModel> _entries = [];
+  TableModel({
+    this.id,
+    required this.name,
+  });
 
-  String get id => _id;
-
-  UnmodifiableListView<TableEntryModel> get entries =>
-      UnmodifiableListView(_entries);
-
-  void addTableEntry(TableEntryModel value) {
-    _entries.add(value);
+  TableModel copyWith({
+    int? id,
+    String? name,
+  }) {
+    return TableModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
   }
 
-  void removeTableEntry(TableEntryModel value) {
-    _entries.remove(value);
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+    };
+  }
+
+  factory TableModel.fromMap(Map<String, dynamic> map) {
+    return TableModel(
+      id: map['id'] as int,
+      name: map['name'] as String,
+    );
   }
 
   factory TableModel.fromJson(Map<String, dynamic> json) =>

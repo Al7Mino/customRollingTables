@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rolling_tables/src/controllers/data_controller.dart';
-import 'package:rolling_tables/src/models/context_model.dart';
+import 'package:rolling_tables/src/controllers/table_controller.dart';
+import 'package:rolling_tables/src/models/table_model.dart';
 import 'package:rolling_tables/src/widgets/string_add_dialog.dart';
 
-class ContextListView extends StatefulWidget {
-  const ContextListView({
-    super.key,
-    required this.dataController,
-  });
+class HomeView extends StatefulWidget {
+  const HomeView({super.key, required this.tableController});
 
-  final DataController dataController;
+  final TableController tableController;
 
   @override
-  State<ContextListView> createState() => _ContextListViewState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _ContextListViewState extends State<ContextListView> {
+class _HomeViewState extends State<HomeView> {
   bool loading = false;
 
   @override
@@ -25,15 +22,15 @@ class _ContextListViewState extends State<ContextListView> {
     setState(() {
       loading = true;
     });
-    widget.dataController.loadData();
+    widget.tableController.loadTables();
     setState(() {
       loading = false;
     });
   }
 
   void onValidate(String value) {
-    final newContext = ContextModel(value);
-    widget.dataController.addContext(newContext);
+    final newTable = TableModel(name: value);
+    widget.tableController.addTable(newTable);
     Navigator.pop(context);
   }
 
@@ -41,36 +38,42 @@ class _ContextListViewState extends State<ContextListView> {
     Navigator.pop(context);
   }
 
-  void onRemoveContext(ContextModel value) {
-    widget.dataController.removeContext(value);
+  void onRemoveTable(TableModel value) {
+    if (value.id == null) {
+      return;
+    }
+    widget.tableController.deleteTable(value.id!);
   }
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: widget.dataController,
+      listenable: widget.tableController,
       builder: (context, child) {
         if (loading) {
           return const CircularProgressIndicator();
         }
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Context List'),
+            title: Text('Tables list'),
             actions: [
               IconButton(
-                  icon: const Icon(Icons.upload),
-                  tooltip: 'Import contexts',
-                  onPressed: () {}),
+                icon: const Icon(Icons.upload),
+                tooltip: 'Import contexts',
+                onPressed: () {},
+              ),
               IconButton(
-                  icon: const Icon(Icons.download),
-                  tooltip: 'Download contexts',
-                  onPressed: () {}),
+                icon: const Icon(Icons.download),
+                tooltip: 'Download contexts',
+                onPressed: () {},
+              ),
               IconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: 'Add a new context',
-                  onPressed: () {
-                    StringAddDialog.builder(context, onValidate, onCancel);
-                  }),
+                icon: const Icon(Icons.add),
+                tooltip: 'Add a new table',
+                onPressed: () {
+                  StringAddDialog.builder(context, onValidate, onCancel);
+                },
+              ),
               IconButton(
                 icon: const Icon(Icons.settings),
                 onPressed: () {
@@ -79,7 +82,6 @@ class _ContextListViewState extends State<ContextListView> {
               ),
             ],
           ),
-
           // To work with lists that may contain a large number of items, it’s best
           // to use the ListView.builder constructor.
           //
@@ -90,22 +92,23 @@ class _ContextListViewState extends State<ContextListView> {
             // Providing a restorationId allows the ListView to restore the
             // scroll position when a user leaves and returns to the app after it
             // has been killed while running in the background.
-            restorationId: 'contextListView',
-            itemCount: widget.dataController.dataModel.contexts.length,
+            restorationId: 'homeView',
+            itemCount: widget.tableController.tables.length,
             itemBuilder: (BuildContext context, int index) {
-              final item = widget.dataController.dataModel.contexts[index];
+              final item = widget.tableController.tables[index];
 
               return ListTile(
-                  title: Text(item.name),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () {
-                      onRemoveContext(item);
-                    },
-                  ),
-                  onTap: () {
-                    context.go('/context/${item.name}');
-                  });
+                title: Text(item.name),
+                trailing: IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: () {
+                    onRemoveTable(item);
+                  },
+                ),
+                onTap: () {
+                  context.go('/tables/${item.name}');
+                },
+              );
             },
           ),
         );
